@@ -21,6 +21,11 @@
                             <%= product.productname %>
                         </h1>
                         <p><%= product.description %></p>
+
+                         <!-- Price Box -->
+                         <div class="price-box mt-3">
+                            <span class="badge bg-success fs-5">Price: <%= product.price %> €</span>
+                        </div>
         
                     </div>
                 </div>
@@ -30,6 +35,10 @@
         
         
     </div>
+    <body>
+        <!-- footer -->
+        <%- include('../partials/footer') %>
+    </body>
 
 </body>
 </html>
