@@ -1,0 +1,14 @@
+ <!-- menu -->
+ <div class="list-group">
+
+    <a href="/products" class="list-group-item list-group-item-action ">Our Menu</a>
+
+    <% menus.forEach(function (menu) { %>
+       <a href="/products/menu/<%= menu.menuid %>" 
+         class="list-group-item list-group-item-action 
+           <%= selectedMenu == menu.menuid ? 'active': ' ' %> "> <!-- id varsa active yoksa '' bosh gondercek-->
+            <%= menu.menuname %>
+      </a>
+   <%  }) %>
+   
+</div>
