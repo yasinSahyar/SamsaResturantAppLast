@@ -1,20 +1,19 @@
 const express = require("express");
 const router = express.Router();
 
-
-router.use("/product/create", function (req, res) {
+// Admin product creation page
+router.get("/product/create", (req, res) => {
     res.render("admin/product-create");
 });
 
-router.use("/product/:productid", function (req, res) {
+// Admin product edit page
+router.get("/product/:productid", (req, res) => {
     res.render("admin/product-edit");
 });
 
-router.use("/products", function (req, res) {
+// Admin product list page
+router.get("/products", (req, res) => {
     res.render("admin/product-list");
 });
-
-
-
 
 module.exports = router;

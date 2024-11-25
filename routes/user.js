@@ -3,6 +3,8 @@ const router = express.Router();
 
 const db = require("../data/db");
 
+
+// Fetch products by menu ID
 router.use("/products/menu/:menuid", async function(req, res) {
     const id = req.params.menuid;
     try {
@@ -22,6 +24,7 @@ router.use("/products/menu/:menuid", async function(req, res) {
     }
 });
 
+// Fetch product details by product ID
 router.use("/products/:productid", async function (req, res) {
     const id = req.params.productid;
     try {
@@ -43,6 +46,8 @@ router.use("/products/:productid", async function (req, res) {
     }
 });
 
+
+// Fetch all products
 router.use("/products", async function (req, res) {
 
     try {
@@ -63,23 +68,22 @@ router.use("/products", async function (req, res) {
 });
 
 
-router.use("/", async function (req, res) {
-   
+// Home route - renders the home page
+router.get("/", async (req, res) => {
     try {
-        const [products, ] = await db.execute("select * from product where approval=1 and homepage=1");
-        const [menus, ] = await db.execute("select * from menu");
-        
-        res.render("users/index",{
+        const [products] = await db.execute("SELECT * FROM product WHERE approval=1 AND homepage=1");
+        const [menus] = await db.execute("SELECT * FROM menu");
+
+        res.render("users/index", {
             title: "Popular Menus",
-            products: products,
-            menus: menus,   
+            products,
+            menus,
             selectedMenu: null,
-        })
-    } 
-    catch (err) {
-        console.log(err);
+        });
+    } catch (err) {
+        console.error(err);
     }
+});
 
-   });
 
-module.exports = router;
+module.exports = router

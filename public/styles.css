@@ -1,3 +1,15 @@
+/* footer ile login arasina bosluk ekle*/
+
+.spacer {
+    margin-top: 50px; /* Adjust this value to control the space */
+}
+
+footer {
+    margin-top: 80px;
+    padding: 20px 0;
+    background-color: #f8f9fa; /* Adjust as needed */
+    text-align: center;
+}
 
 /*CSS for the Footer */
 
