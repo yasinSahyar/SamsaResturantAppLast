@@ -1,4 +1,5 @@
 // shared/cart.js
+
 let cart = [];
 
 function addToCart(product) {
@@ -14,4 +15,3 @@ function clearCart() {
 }
 
 module.exports = { addToCart, getCart, clearCart };
-
