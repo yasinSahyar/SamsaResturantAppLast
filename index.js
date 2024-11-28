@@ -1,3 +1,4 @@
+//index.js
 const express = require("express");
 const app = express();
 
@@ -6,6 +7,7 @@ const path = require("path");
 const userRoutes = require("./routes/user");
 const adminRoutes = require("./routes/admin");
 const authRoutes = require("./routes/auth"); // Import authentication routes
+const cartRoutes = require("./routes/cart"); //add to cart
 
 
 app.set("view engine", "ejs");
@@ -23,6 +25,7 @@ app.use("/static", express.static("public"));
 // Register routes
 app.use(authRoutes); // Register authentication routes
 app.use(userRoutes);
+app.use(cartRoutes);
 app.use("/admin",adminRoutes);
 
 // Handle 404 errors

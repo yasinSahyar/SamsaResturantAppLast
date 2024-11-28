@@ -1,3 +1,4 @@
+<!--products.ejs -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,19 +9,13 @@
     <%- include('../partials/nav') %>
 
     <div class="container mt-3">
-        
         <div class="row">
             <div class="col-md-3">
-
-                <!-- menu -->
-                <%- include('../partials/menu-menu', {menus, selectedMenu }) %>
-
-
+                <%- include('../partials/menu-menu', { menus, selectedMenu }) %>
             </div>
             <div class="col-md-9">
-
                 <h1 class="h3 mb-3">
-                    <%=title %>
+                    <%= title %>
                 </h1>
 
                 <% if (products.length == 0) { %>
@@ -28,28 +23,20 @@
                 <% } %>
 
                 <% products.forEach(product => { %>
-
-                        <%- include('../partials/product-card', product) %>
-
-
+                    <!-- Corrected line: Pass product as an object -->
+                    <%- include('../partials/product-card', { product: product }) %>
                 <% }) %>
 
-                <!-- altakki onceki  sonraki sayifa bari 3 ten buyuk olsa gelir olmazssa gelmez -->
+                <!-- Pagination (optional, only if needed) -->
                 <% if (products.filter(b => b.approval).length > 3) { %>
-                 
-                  <%- include('../partials/paginations') %>
-
-
+                    <%- include('../partials/paginations') %>
                 <% } %>
-                    
 
             </div>
         </div>
     </div>
-    <body>
-        <!-- footer -->
-        <%- include('../partials/footer') %>
-    </body>
 
+    <!-- footer -->
+    <%- include('../partials/footer') %>
 </body>
 </html>

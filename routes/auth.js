@@ -1,3 +1,4 @@
+//auth.js
 const express = require("express");
 const router = express.Router();
 const db = require("../data/db"); // Assuming `db.js` is your database connection

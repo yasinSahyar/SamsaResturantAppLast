@@ -1,7 +1,10 @@
+//user.js
 const express = require("express");
 const router = express.Router();
 
 const db = require("../data/db");
+
+const { addToCart, getCart } = require("../shared/cart");// Use shared cart
 
 
 // Fetch products by menu ID
@@ -21,6 +24,7 @@ router.use("/products/menu/:menuid", async function(req, res) {
     }
     catch (err){
         console.log(err);
+        res.status(500).send("Internal server error");
     }
 });
 
@@ -43,6 +47,7 @@ router.use("/products/:productid", async function (req, res) {
     }
     catch (err){
         console.log(err);
+        res.status(500).send("Internal server error");
     }
 });
 
@@ -85,5 +90,22 @@ router.get("/", async (req, res) => {
     }
 });
 
+
+// Add item to cart
+router.post("/cart/add", async (req, res) => {
+    const { productId } = req.body;
+    if (!productId) return res.status(400).send("Product ID is required");
+
+    try {
+        const [products] = await db.execute("SELECT * FROM product WHERE productid = ?", [productId]);
+        const product = products[0];
+        if (!product) return res.status(404).send("Product not found");
+        addToCart(product); // Add to shared cart
+        res.redirect("/cart");
+    } catch (err) {
+        console.error("Error fetching product:", err);
+        res.status(500).send("Internal server error");
+    }
+});
 
 module.exports = router

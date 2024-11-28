@@ -1,19 +1,35 @@
+<!--product-card.ejs -->
+
 <div class="card mb-3">
     <div class="row">
-        <div class="col-md-3">
-            <img src="/static/images/<%= image %>" class="img-fluid" alt="">
-        </div>
-        <div class="col-md-8">
-            <div class="card-body">
-                <h5 class="card-title">
-                   <a style="text-decoration: none;" href="/products/<%= productid %>"> <%= productname %> </a>
-                </h5>
-                <p class="card-text"><%= description %></p>
-                <!-- Price box -->
-                <div class="price-box mt-3">
-                    <span class="badge bg-success fs-6">Price: <%= price %> €</span>
+        <% if (typeof isSingleProduct === 'undefined' || !isSingleProduct) { %>
+            <!-- For non-single product page, display product details (image, name, description, and price) -->
+            <div class="col-md-3">
+                <img src="/static/images/<%= product.image %>" class="img-fluid" alt="<%= product.productname %>">
+            </div>
+            <div class="col-md-8">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <a style="text-decoration: none;" href="/products/<%= product.productid %>"> <%= product.productname %> </a>
+                    </h5>
+                    <p class="card-text"><%= product.description %></p>
+
+                    <!-- Price box -->
+                    <div class="price-box mt-3">
+                        <span class="badge bg-success fs-6">Price: <%= product.price %> €</span>
+                    </div>
                 </div>
             </div>
-        </div>
+        <% } %>
+
+        <% if (typeof isSingleProduct !== 'undefined' && isSingleProduct) { %>
+            <!-- For the single product page, only display the Add to Cart button -->
+            <div class="col-md-12" style="margin-top: 80px;">
+                <form action="/cart/add" method="POST" class="mt-3">
+                    <input type="hidden" name="productId" value="<%= product.productid %>">
+                    <button type="submit" class="btn btn-primary">Add to Cart</button>
+                </form>
+            </div>
+        <% } %>
     </div>
 </div>

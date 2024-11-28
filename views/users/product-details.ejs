@@ -1,3 +1,4 @@
+<!--product-details.ejs -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -26,6 +27,9 @@
                          <div class="price-box mt-3">
                             <span class="badge bg-success fs-5">Price: <%= product.price %> €</span>
                         </div>
+
+                        <!-- Add to Cart Button -->
+                        <%- include('../partials/product-card', { ...product, isSingleProduct: true }) %>
         
                     </div>
                 </div>
