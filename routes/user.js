@@ -94,18 +94,38 @@ router.get("/", async (req, res) => {
 // Add item to cart
 router.post("/cart/add", async (req, res) => {
     const { productId } = req.body;
+
     if (!productId) return res.status(400).send("Product ID is required");
 
     try {
         const [products] = await db.execute("SELECT * FROM product WHERE productid = ?", [productId]);
         const product = products[0];
+
         if (!product) return res.status(404).send("Product not found");
-        addToCart(product); // Add to shared cart
+
+        if (!req.session.cart) {
+            req.session.cart = [];
+        }
+
+        const existingItem = req.session.cart.find((item) => item.id === productId);
+
+        if (existingItem) {
+            existingItem.quantity += 1;
+        } else {
+            req.session.cart.push({
+                id: productId,
+                name: product.productname,
+                price: parseFloat(product.price), // Ensure price is a number
+                quantity: 1,
+            });
+        }
+
         res.redirect("/cart");
     } catch (err) {
-        console.error("Error fetching product:", err);
+        console.error("Error adding product to cart:", err);
         res.status(500).send("Internal server error");
     }
 });
+
 
 module.exports = router

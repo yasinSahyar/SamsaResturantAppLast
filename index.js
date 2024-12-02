@@ -1,43 +1,49 @@
 //index.js
-const express = require("express");
-const session = require("express-session");
+
+const express = require('express');
+const session = require('express-session');
+const path = require('path');
+const crypto = require('crypto');
 const app = express();
 
-const path = require("path");
-
+const cartRoutes = require("./routes/cart");
 const userRoutes = require("./routes/user");
 const adminRoutes = require("./routes/admin");
-const authRoutes = require("./routes/auth"); // Import authentication routes
-const cartRoutes = require("./routes/cart"); //add to cart
+const authRoutes = require("./routes/auth");
 
+const secret = crypto.randomBytes(64).toString('hex');
+console.log('Generated Secret Key:', secret); 
 
-app.set("view engine", "ejs");
-app.get("view engine");
+// Middleware to parse form data and JSON data
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
 
-// Middleware to parse form data
-app.use(express.urlencoded({ extended: true })); // For parsing application/x-www-form-urlencoded
-app.use(express.json()); // For parsing application/json
+// Set up view engine (EJS)
+app.set('views', path.join(__dirname, 'views')); // Set the 'views' folder for EJS templates
+app.set('view engine', 'ejs'); // Specify EJS as the view engine
+
+app.use(express.static(path.join(__dirname, 'public')));
+
 
 // Session middleware setup
 app.use(
     session({
-        secret: "e1d5c9cb89eeb3b5807f44a1b91758e0c6e8437284d192244b5b56f1faba7d92", // Replace with a secure key
+        secret: secret, // Use the dynamically generated secret key here
         resave: false,
         saveUninitialized: true,
         cookie: { secure: false }, // Set to true if using HTTPS
     })
 );
 
+// Register routes
+app.use(authRoutes);
+app.use(userRoutes);
+app.use("/cart", cartRoutes);
+app.use("/admin", adminRoutes);
 
 // Serve static files
-app.use("/libs",express.static("node_modules"));
+app.use("/libs", express.static("node_modules"));
 app.use("/static", express.static("public"));
-
-// Register routes
-app.use(authRoutes); // Register authentication routes
-app.use(userRoutes);
-app.use("/cart", cartRoutes); // Add "/cart" prefix to cart routes
-app.use("/admin", adminRoutes);
 
 // Home Route (Optional)
 app.get('/', (req, res) => {
@@ -49,7 +55,6 @@ app.use((req, res) => {
     res.status(404).send("Page not found");
 });
 
-
 app.listen(3000, function() {
     console.log("listening on port 3000");
-}) ;
+});

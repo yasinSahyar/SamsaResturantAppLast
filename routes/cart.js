@@ -2,72 +2,86 @@
 
 const express = require('express');
 const router = express.Router();
+const path = require('path');
 
-// Middleware to check if the cart exists in session
+// Middleware to initialize cart in session
 function checkCart(req, res, next) {
     if (!req.session.cart) {
-        req.session.cart = []; // Initialize the cart if it doesn't exist
+        req.session.cart = []; // Initialize cart if undefined
+        console.log("Initialized empty cart");
     }
     next();
 }
 
-// Route to view the cart
-router.get('/', checkCart, (req, res) => {
-    res.render('cart/cart', { 
-        items: req.session.cart, 
-        title: 'Shopping Cart' 
+// Apply checkCart middleware to all /cart routes
+router.use(checkCart);
+
+// GET /cart - Display the shopping cart
+// routes/cart.js
+router.get('/', (req, res) => {
+    // Retrieve cart from session or set an empty array if undefined
+    const cartItems = req.session.cart || [];
+
+    res.render('cart/cart', {
+        items: cartItems,
+        totalPrice: cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0),
     });
 });
 
-// Route to add an item to the cart
-router.post('/add', checkCart, (req, res) => {
-    const { name, price, quantity } = req.body;
 
-    if (name && price && quantity) {
-        const existingItem = req.session.cart.find(item => item.name === name);
-        if (existingItem) {
-            existingItem.quantity += parseInt(quantity);
-        } else {
-            req.session.cart.push({ name, price: parseFloat(price), quantity: parseInt(quantity) });
-        }
+
+// POST route to add item to cart
+router.post('/add', (req, res) => {
+    const { name, price, quantity, id } = req.body;
+
+    // Validate mandatory fields
+    if (!name || !price || !quantity) {
+        return res.status(400).send({ message: 'Name, price, and quantity are required.' });
     }
 
-    res.redirect('/cart');
+    // Automatically generate a product ID if none is provided
+    const productId = id || Date.now(); // Unique ID based on timestamp or provided ID
+
+    const newItem = {
+        id: productId,
+        name,
+        price,
+        quantity
+    };
+
+    // Ensure session.cart is initialized
+    if (!req.session.cart) {
+        req.session.cart = [];
+    }
+
+    // Add item to cart
+    req.session.cart.push(newItem);
+
+    // Send response
+    res.send({ message: 'Item added to cart', cart: req.session.cart });
 });
-// Route to remove an item from the cart
-router.post('/remove', checkCart, (req, res) => {
-    const { name } = req.body;
 
-    req.session.cart = req.session.cart.filter(item => item.name !== name);
 
-    res.redirect('/cart');
-});
-
-// Route to clear the entire cart
-router.post('/clear', checkCart, (req, res) => {
-    req.session.cart = [];
-    res.redirect('/cart');
-});
-
+// POST /cart/payment - Process payment and show confirmation
 router.post('/payment', (req, res) => {
-    const { name, surname, address, card } = req.body;
+    const { name, address, card } = req.body;
 
-    // Validate input data
-    if (!name || !surname || !address || !card) {
+    if (!name || !address || !card) {
         return res.status(400).send('All fields are required.');
     }
 
     const items = req.session.cart || [];
     const totalPrice = items.reduce((acc, item) => acc + item.price * item.quantity, 0);
 
-    res.render('cart/payment-confirmation', {
+    // Clear the cart after payment
+    req.session.cart = [];
+
+    res.render('cart/confirmation', {
         name,
-        surname,
         address,
-        card,
         items,
         totalPrice,
-        title: 'Payment Confirmation'
+        title: 'Payment Confirmation',
     });
 });
 
