@@ -5,6 +5,7 @@ const session = require('express-session');
 const path = require('path');
 const crypto = require('crypto');
 const app = express();
+const reservationRouter = require('./routes/reservation');  // Adjust the path as needed
 
 const cartRoutes = require("./routes/cart");
 const userRoutes = require("./routes/user");
@@ -40,6 +41,8 @@ app.use(authRoutes);
 app.use(userRoutes);
 app.use("/cart", cartRoutes);
 app.use("/admin", adminRoutes);
+app.use('/reservation', reservationRouter);  // This registers the reservation route
+
 
 // Serve static files
 app.use("/libs", express.static("node_modules"));

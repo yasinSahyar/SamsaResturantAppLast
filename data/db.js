@@ -1,3 +1,4 @@
+//db.js
 
 const mysql = require("mysql2");
 const config = require("../config");
@@ -17,5 +18,6 @@ connection.connect(function(err) {
 });
 
 module.exports = connection.promise();
+
 
 // promise , async-away => async

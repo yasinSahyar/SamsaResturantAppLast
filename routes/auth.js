@@ -1,29 +1,27 @@
 //auth.js
 const express = require("express");
 const router = express.Router();
-const db = require("../data/db"); // Assuming `db.js` is your database connection
+const db = require("../data/db");
 const bcrypt = require("bcrypt");
+const passwordRoutes = require('./password');
 
-// Render Login page
+router.use(passwordRoutes);
+
 router.get("/login", (req, res) => {
-    res.render("auth/login", {
-        title: "Login",
-    });
+    const registrationSuccess = req.session.registrationSuccess || null;
+    req.session.registrationSuccess = null;
+
+    res.render("auth/login", { title: "Login", registrationSuccess });
 });
 
-// Render Register page
 router.get("/register", (req, res) => {
-    res.render("auth/register", {
-        title: "Register",
-    });
+    res.render("auth/register", { title: "Register" });
 });
 
-// Handle Register form submission
 router.post("/register", async (req, res) => {
     const { username, password, email } = req.body;
 
     try {
-        // Check if username or email already exists
         const [existingUsers] = await db.execute(
             "SELECT * FROM users WHERE username = ? OR email = ?",
             [username, email]
@@ -32,54 +30,54 @@ router.post("/register", async (req, res) => {
             return res.send("Username or email already exists.");
         }
 
-        // Hash the password
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        // Insert the new user into the database
         await db.execute(
             "INSERT INTO users (username, email, password) VALUES (?, ?, ?)",
             [username, email, hashedPassword]
         );
 
-        //res.send("You have successfully registered.");
-        res.redirect("/?message=successfully-registered");
-        
+        req.session.registrationSuccess = `Hey ${username}, you are successfully registered! Please login to your account.`;
+        res.redirect("/login");
     } catch (error) {
         console.error("Error during registration:", error);
         res.status(500).send("An error occurred. Please try again later.");
     }
 });
 
-// Handle Login form submission
 router.post("/login", async (req, res) => {
-    const { username, password } = req.body;
+    const { userIdentifier, password } = req.body;
 
     try {
-        // Find the user by username
-        const [users] = await db.execute("SELECT * FROM users WHERE username = ?", [
-            username,
-        ]);
+        const [users] = await db.execute(
+            "SELECT * FROM users WHERE username = ? OR email = ?",
+            [userIdentifier, userIdentifier]
+        );
 
         if (users.length === 0) {
-            return res.send("Invalid username or password.");
+            return res.send("Invalid username/email or password.");
         }
 
         const user = users[0];
-
-        // Compare the provided password with the hashed password
         const isMatch = await bcrypt.compare(password, user.password);
 
         if (!isMatch) {
-            return res.send("Invalid username or password.");
+            return res.send("Invalid username/email or password.");
         }
 
-        // res.send("Login successful!");
-        res.redirect("/?message=successfully-registered");
+        req.session.user = { id: user.id, username: user.username };
 
-    } catch (error) {
-        console.error("Error during login:", error);
+        res.redirect("/cart");
+    } catch (err) {
+        console.error("Error during login:", err);
         res.status(500).send("An error occurred. Please try again later.");
     }
+});
+
+router.get("/logout", (req, res) => {
+    req.session.destroy(() => {
+        res.redirect("/");
+    });
 });
 
 module.exports = router;
